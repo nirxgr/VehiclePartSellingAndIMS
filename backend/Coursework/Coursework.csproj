@@ -16,12 +16,13 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Controllers\" />
+      <ProjectReference Include="..\Coursework.Application\Coursework.Application.csproj" />
+      <ProjectReference Include="..\Coursework.Infrastructure\Coursework.Infrastructure.csproj" />
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Coursework.Application\Coursework.Application.csproj" />
-      <ProjectReference Include="..\Coursework.Infrastructure\Coursework.Infrastructure.csproj" />
+      <Folder Include="DTOs\" />
+      <Folder Include="Controllers\" />
     </ItemGroup>
 
 </Project>
