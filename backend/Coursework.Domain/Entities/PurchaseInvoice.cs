@@ -4,31 +4,35 @@ using Coursework.Domain.Enums;
 
 namespace Coursework.Domain.Entities;
 
+[Table("purchase_orders")]
 public class PurchaseInvoice
 {
+    [Key]
+    [Column("purchase_order_id")]
     public int PurchaseInvoiceId { get; set; }
 
+    [Column("vendor_id")]
     public int VendorId { get; set; }
 
+    [ForeignKey(nameof(VendorId))]
     public Vendor Vendor { get; set; } = null!;
 
-    [Required]
-    public string CreatedById { get; set; } = string.Empty;
-
-    public ApplicationUser CreatedBy { get; set; } = null!;
-
-    [Required]
-    [MaxLength(100)]
-    public string InvoiceNumber { get; set; } = string.Empty;
-
+    [Column("order_date")]
     public DateTime PurchaseDate { get; set; } = DateTime.UtcNow;
 
-    [Column(TypeName = "decimal(18,2)")]
+    [MaxLength(100)]
+    [Column("invoice_number")]
+    public string InvoiceNumber { get; set; } = string.Empty;
+
+    [Column("total_amount")]
     public decimal TotalAmount { get; set; }
 
-    public PurchaseInvoiceStatus Status { get; set; } = PurchaseInvoiceStatus.Completed;
+    public int? CreatedById { get; set; }
 
-    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+    [ForeignKey(nameof(CreatedById))]
+    public User? CreatedBy { get; set; }
+
+    public PurchaseInvoiceStatus Status { get; set; } = PurchaseInvoiceStatus.Completed;
 
     public ICollection<PurchaseInvoiceItem> Items { get; set; } = new List<PurchaseInvoiceItem>();
 }

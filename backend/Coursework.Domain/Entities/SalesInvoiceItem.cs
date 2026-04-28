@@ -3,26 +3,31 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Coursework.Domain.Entities;
 
+[Table("sales_invoice_items")]
 public class SalesInvoiceItem
 {
+    [Key]
+    [Column("sales_invoice_items_id")]
     public int SalesInvoiceItemId { get; set; }
 
+    [Column("sales_invoice_id")]
     public int SalesInvoiceId { get; set; }
 
+    [ForeignKey(nameof(SalesInvoiceId))]
     public SalesInvoice SalesInvoice { get; set; } = null!;
 
+    [Column("part_id")]
     public int PartId { get; set; }
 
+    [ForeignKey(nameof(PartId))]
     public Part Part { get; set; } = null!;
 
-    [Range(1, int.MaxValue)]
+    [Column("quantity")]
     public int Quantity { get; set; }
 
-    [Range(0.01, double.MaxValue)]
-    [Column(TypeName = "decimal(18,2)")]
+    [Column("price_per_unit")]
     public decimal PricePerUnit { get; set; }
 
-    [Range(0.01, double.MaxValue)]
-    [Column(TypeName = "decimal(18,2)")]
-    public decimal LineTotal { get; set; }
+    [NotMapped]
+    public decimal LineTotal => Quantity * PricePerUnit;
 }

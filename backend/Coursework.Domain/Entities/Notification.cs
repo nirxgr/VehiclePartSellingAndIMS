@@ -1,39 +1,38 @@
 using System.ComponentModel.DataAnnotations;
-using Coursework.Domain.Enums;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Coursework.Domain.Entities;
 
+[Table("notifications")]
 public class Notification
 {
+    [Key]
+    [Column("notification_id")]
     public int NotificationId { get; set; }
 
     [Required]
-    public string UserId { get; set; } = string.Empty;
+    [Column("user_id")]
+    public int UserId { get; set; }
 
-    public ApplicationUser User { get; set; } = null!;
+    [ForeignKey(nameof(UserId))]
+    public User User { get; set; } = null!;
 
-    public NotificationType NotificationType { get; set; } = NotificationType.General;
+    [MaxLength(50)]
+    [Column("log_type")]
+    public string? LogType { get; set; }
 
-    [Required]
     [MaxLength(150)]
-    public string Title { get; set; } = string.Empty;
+    [Column("subject")]
+    public string? Subject { get; set; }
 
-    [Required]
     [MaxLength(500)]
-    public string Message { get; set; } = string.Empty;
+    [Column("message")]
+    public string? Message { get; set; }
 
-    public DeliveryMethod DeliveryMethod { get; set; } = DeliveryMethod.InApp;
+    [MaxLength(50)]
+    [Column("mailed_status")]
+    public string? MailedStatus { get; set; }
 
-    public bool IsRead { get; set; } = false;
-
-    public bool IsSent { get; set; } = false;
-
-    public DateTime? SentAt { get; set; }
-
-    [MaxLength(100)]
-    public string? RelatedEntityType { get; set; }
-
-    public int? RelatedEntityId { get; set; }
-
+    [Column("created_at")]
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 }

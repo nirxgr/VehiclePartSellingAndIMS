@@ -13,14 +13,14 @@ public class ServiceRecord
     public Appointment Appointment { get; set; } = null!;
 
     [Required]
-    public string CustomerId { get; set; } = string.Empty;
+    public int CustomerId { get; set; }
 
-    public ApplicationUser Customer { get; set; } = null!;
+    public User Customer { get; set; } = null!;
 
     [Required]
-    public string StaffId { get; set; } = string.Empty;
+    public int StaffId { get; set; }
 
-    public ApplicationUser Staff { get; set; } = null!;
+    public User Staff { get; set; } = null!;
 
     public int VehicleId { get; set; }
 

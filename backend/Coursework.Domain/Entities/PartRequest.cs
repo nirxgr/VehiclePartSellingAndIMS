@@ -1,30 +1,36 @@
 using System.ComponentModel.DataAnnotations;
-using Coursework.Domain.Enums;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Coursework.Domain.Entities;
 
+[Table("part_requests")]
 public class PartRequest
 {
+    [Key]
+    [Column("part_request_id")]
     public int PartRequestId { get; set; }
 
     [Required]
-    public string CustomerId { get; set; } = string.Empty;
+    [Column("customer_id")]
+    public int CustomerId { get; set; }
 
-    public ApplicationUser Customer { get; set; } = null!;
+    [ForeignKey(nameof(CustomerId))]
+    public User Customer { get; set; } = null!;
 
     [Required]
     [MaxLength(100)]
+    [Column("part_name")]
     public string PartName { get; set; } = string.Empty;
 
     [MaxLength(500)]
+    [Column("description")]
     public string? Description { get; set; }
 
-    public PartRequestStatus Status { get; set; } = PartRequestStatus.Pending;
+    [Column("requested_date")]
+    public DateTime RequestedDate { get; set; } = DateTime.UtcNow;
 
-    [MaxLength(500)]
-    public string? AdminResponse { get; set; }
-
-    public DateTime RequestedAt { get; set; } = DateTime.UtcNow;
-
-    public DateTime? UpdatedAt { get; set; }
+    [Required]
+    [MaxLength(50)]
+    [Column("status")]
+    public string Status { get; set; } = "Pending";
 }

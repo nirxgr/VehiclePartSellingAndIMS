@@ -1,35 +1,40 @@
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using Coursework.Domain.Enums;
 
 namespace Coursework.Domain.Entities;
 
+[Table("appointments")]
 public class Appointment
 {
+    [Key]
+    [Column("appointment_id")]
     public int AppointmentId { get; set; }
 
     [Required]
-    public string CustomerId { get; set; } = string.Empty;
+    [Column("customer_id")]
+    public int CustomerId { get; set; }
 
-    public ApplicationUser Customer { get; set; } = null!;
+    [ForeignKey(nameof(CustomerId))]
+    public User Customer { get; set; } = null!;
 
+    [Column("vehicle_id")]
     public int VehicleId { get; set; }
 
+    [ForeignKey(nameof(VehicleId))]
     public Vehicle Vehicle { get; set; } = null!;
 
-    public DateTime AppointmentDate { get; set; }
+    [Column("requested_date")]
+    public DateTime RequestedDate { get; set; }
+
+    [MaxLength(500)]
+    [Column("remarks")]
+    public string? Remarks { get; set; }
 
     [Required]
-    [MaxLength(500)]
-    public string IssueDescription { get; set; } = string.Empty;
-
-    public AppointmentStatus Status { get; set; } = AppointmentStatus.Pending;
-
-    [MaxLength(500)]
-    public string? AdminRemarks { get; set; }
-
-    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-
-    public DateTime? UpdatedAt { get; set; }
+    [MaxLength(50)]
+    [Column("status")]
+    public string Status { get; set; } = "Pending";
 
     public ICollection<Review> Reviews { get; set; } = new List<Review>();
 }

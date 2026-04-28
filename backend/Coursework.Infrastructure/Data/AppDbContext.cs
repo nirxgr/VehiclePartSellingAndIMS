@@ -1,17 +1,16 @@
 using Coursework.Domain.Entities;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace Coursework.Infrastructure.Data;
 
-public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
+public class ApplicationDbContext : DbContext
 {
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
         : base(options)
     {
     }
 
+    public DbSet<User> Users => Set<User>();
     public DbSet<Vehicle> Vehicles => Set<Vehicle>();
     public DbSet<Vendor> Vendors => Set<Vendor>();
     public DbSet<Part> Parts => Set<Part>();
@@ -33,57 +32,26 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     {
         base.OnModelCreating(modelBuilder);
 
-        SeedRoles(modelBuilder);
         ConfigureIndexes(modelBuilder);
         ConfigureRelationships(modelBuilder);
         ConfigureMoneyPrecision(modelBuilder);
         ConfigureEnumConversions(modelBuilder);
     }
 
-    private static void SeedRoles(ModelBuilder modelBuilder)
-    {
-        modelBuilder.Entity<IdentityRole>().HasData(
-            new IdentityRole
-            {
-                Id = "1",
-                Name = "Admin",
-                NormalizedName = "ADMIN",
-                ConcurrencyStamp = "admin-role-stamp"
-            },
-            new IdentityRole
-            {
-                Id = "2",
-                Name = "Staff",
-                NormalizedName = "STAFF",
-                ConcurrencyStamp = "staff-role-stamp"
-            },
-            new IdentityRole
-            {
-                Id = "3",
-                Name = "Customer",
-                NormalizedName = "CUSTOMER",
-                ConcurrencyStamp = "customer-role-stamp"
-            }
-        );
-    }
-
     private static void ConfigureIndexes(ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<User>()
+            .HasIndex(u => u.Email)
+            .IsUnique();
+
         modelBuilder.Entity<Vehicle>()
             .HasIndex(v => v.VehicleNumber)
             .IsUnique();
 
         modelBuilder.Entity<Part>()
-            .HasIndex(p => p.PartNumber)
-            .IsUnique();
+            .HasIndex(p => p.PartName);
 
-        modelBuilder.Entity<PurchaseInvoice>()
-            .HasIndex(p => p.InvoiceNumber)
-            .IsUnique();
 
-        modelBuilder.Entity<SalesInvoice>()
-            .HasIndex(s => s.InvoiceNumber)
-            .IsUnique();
 
         modelBuilder.Entity<Vendor>()
             .HasIndex(v => v.Email);
@@ -226,6 +194,10 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
 
     private static void ConfigureMoneyPrecision(ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<User>()
+            .Property(u => u.CreditsRemaining)
+            .HasPrecision(18, 2);
+
         modelBuilder.Entity<Part>()
             .Property(p => p.CostPricePerUnit)
             .HasPrecision(18, 2);
@@ -241,10 +213,9 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
         modelBuilder.Entity<PurchaseInvoiceItem>()
             .Property(p => p.CostPricePerUnit)
             .HasPrecision(18, 2);
-
+        
         modelBuilder.Entity<PurchaseInvoiceItem>()
-            .Property(p => p.LineTotal)
-            .HasPrecision(18, 2);
+            .Ignore(p => p.LineTotal);
 
         modelBuilder.Entity<SalesInvoice>()
             .Property(s => s.SubTotal)
@@ -258,17 +229,13 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
             .Property(s => s.FinalAmount)
             .HasPrecision(18, 2);
 
-        modelBuilder.Entity<SalesInvoice>()
-            .Property(s => s.PaidAmount)
-            .HasPrecision(18, 2);
 
         modelBuilder.Entity<SalesInvoiceItem>()
             .Property(s => s.PricePerUnit)
             .HasPrecision(18, 2);
-
+        
         modelBuilder.Entity<SalesInvoiceItem>()
-            .Property(s => s.LineTotal)
-            .HasPrecision(18, 2);
+            .Ignore(s => s.LineTotal);
 
         modelBuilder.Entity<Payment>()
             .Property(p => p.Amount)
@@ -281,33 +248,8 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
 
     private static void ConfigureEnumConversions(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<SalesInvoice>()
-            .Property(s => s.PaymentStatus)
-            .HasConversion<string>()
-            .HasMaxLength(50);
-
         modelBuilder.Entity<Payment>()
             .Property(p => p.PaymentMethod)
-            .HasConversion<string>()
-            .HasMaxLength(50);
-
-        modelBuilder.Entity<Appointment>()
-            .Property(a => a.Status)
-            .HasConversion<string>()
-            .HasMaxLength(50);
-
-        modelBuilder.Entity<PartRequest>()
-            .Property(p => p.Status)
-            .HasConversion<string>()
-            .HasMaxLength(50);
-
-        modelBuilder.Entity<Notification>()
-            .Property(n => n.NotificationType)
-            .HasConversion<string>()
-            .HasMaxLength(50);
-
-        modelBuilder.Entity<Notification>()
-            .Property(n => n.DeliveryMethod)
             .HasConversion<string>()
             .HasMaxLength(50);
 

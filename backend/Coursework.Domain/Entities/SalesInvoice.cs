@@ -1,52 +1,55 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using Coursework.Domain.Enums;
 
 namespace Coursework.Domain.Entities;
 
+[Table("sales_invoice")]
 public class SalesInvoice
 {
+    [Key]
+    [Column("sales_invoice_id")]
     public int SalesInvoiceId { get; set; }
 
     [Required]
-    [MaxLength(50)]
-    public string InvoiceNumber { get; set; } = string.Empty;
+    [Column("customer_id")]
+    public int CustomerId { get; set; }
 
-    [Required]
-    public string CustomerId { get; set; } = string.Empty;
+    [ForeignKey(nameof(CustomerId))]
+    public User Customer { get; set; } = null!;
 
-    public ApplicationUser Customer { get; set; } = null!;
+    [Column("staff_id")]
+    public int? StaffId { get; set; }
 
-    [Required]
-    public string StaffId { get; set; } = string.Empty;
+    [ForeignKey(nameof(StaffId))]
+    public User? Staff { get; set; }
 
-    public ApplicationUser Staff { get; set; } = null!;
+    [Column("vehicle_id")]
+    public int? VehicleId { get; set; }
 
-    public int VehicleId { get; set; }
+    [ForeignKey(nameof(VehicleId))]
+    public Vehicle? Vehicle { get; set; }
 
-    public Vehicle Vehicle { get; set; } = null!;
-
+    [Column("invoice_date")]
     public DateTime InvoiceDate { get; set; } = DateTime.UtcNow;
 
-    [Column(TypeName = "decimal(18,2)")]
+    [Column("sub_total")]
     public decimal SubTotal { get; set; }
 
-    [Column(TypeName = "decimal(18,2)")]
+    [Column("discount_amount")]
     public decimal DiscountAmount { get; set; }
 
-    [Column(TypeName = "decimal(18,2)")]
+    [Column("final_amount")]
     public decimal FinalAmount { get; set; }
 
-    [Column(TypeName = "decimal(18,2)")]
-    public decimal PaidAmount { get; set; }
+    [Column("isPaid")]
+    public bool IsPaid { get; set; } = false;
 
-    public PaymentStatus PaymentStatus { get; set; } = PaymentStatus.Unpaid;
-
+    [Column("due_date")]
     public DateTime? DueDate { get; set; }
 
-    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+    [NotMapped]
+    public string InvoiceNumber => $"INV-{SalesInvoiceId:D6}";
 
     public ICollection<SalesInvoiceItem> Items { get; set; } = new List<SalesInvoiceItem>();
-
     public ICollection<Payment> Payments { get; set; } = new List<Payment>();
 }
