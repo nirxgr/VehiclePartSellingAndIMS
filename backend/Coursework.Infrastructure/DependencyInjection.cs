@@ -23,11 +23,15 @@ public static class DependencyInjection
         services.AddScoped<IVehicleRepository, VehicleRepository>();
         services.AddScoped<IServiceRecordRepository, ServiceRecordRepository>();
         services.AddScoped<IPartRequestRepository, PartRequestRepository>();
+        services.AddScoped<ISalesInvoiceRepository, SalesInvoiceRepository>();
+        services.AddScoped<ISalesInvoiceItemRepository, SalesInvoiceItemRepository>();
+        services.AddScoped<IPurchaseInvoiceItemRepository, PurchaseInvoiceItemRepository>();
 
         // Application Services
         services.AddScoped<IAppointmentService, AppointmentService>();
         services.AddScoped<IReviewService, ReviewService>();
         services.AddScoped<IPartRequestService, PartRequestService>();
+        services.AddScoped<IFinancialReportService, FinancialReportService>();
 
         return services;
     }
