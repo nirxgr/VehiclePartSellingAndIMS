@@ -54,7 +54,7 @@ function AdminNavbar() {
 
             <header className="admin-topbar">
                 <div className="admin-topbar-left">
-                    <h2>Financial Reports</h2>
+                    <h2>Admin</h2>
 
                     <div className="admin-search-box">
                         <span className="material-symbols-outlined">search</span>
@@ -97,6 +97,7 @@ function AdminNavLink({
     return (
         <NavLink
             to={to}
+            end={to === "/admin"}
             className={({ isActive }) =>
                 isActive ? "admin-nav-link active" : "admin-nav-link"
             }

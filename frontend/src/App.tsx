@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 import CustomerLayout from "./layouts/CustomerLayout";
 import AdminLayout from "./layouts/AdminLayout";
+import StaffLayout from "./layouts/StaffLayout";
 
 import CustomerDashboard from "./pages/customer/CustomerDashboard";
 import BookAppointment from "./pages/customer/appointments/BookAppointment";
@@ -10,6 +11,8 @@ import AppointmentDetails from "./pages/customer/appointments/AppointmentDetails
 import RequestPart from "./pages/customer/parts/RequestPart";
 import MyPartRequests from "./pages/customer/parts/MyPartRequests";
 import PartRequestDetails from "./pages/customer/parts/PartRequestDetails";
+
+import StaffDashboard from "./pages/staff/StaffDashboard";
 
 import FinancialReports from "./pages/admin/reports/FinancialReports";
 
@@ -80,6 +83,10 @@ function App() {
                         </CustomerLayout>
                     }
                 />
+
+                <Route path="/staff" element={<StaffLayout />}>
+                    <Route index element={<StaffDashboard />} />
+                </Route>
 
                 {/* Admin Routes */}
                 <Route
