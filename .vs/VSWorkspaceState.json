@@ -2,12 +2,15 @@
   "ExpandedNodes": [
     "",
     "\\backend",
-    "\\backend\\Coursework.Application",
-    "\\backend\\Coursework.Domain",
     "\\backend\\Coursework.Infrastructure",
-    "\\backend\\Coursework.Infrastructure\\Migrations",
-    "\\frontend"
+    "\\backend\\Coursework.Infrastructure\\Repositories",
+    "\\frontend",
+    "\\frontend\\src",
+    "\\frontend\\src\\components",
+    "\\frontend\\src\\components\\salesInvoices",
+    "\\frontend\\src\\pages",
+    "\\frontend\\src\\pages\\salesInvoices"
   ],
-  "SelectedNode": "\\backend\\Coursework.Application",
+  "SelectedNode": "\\frontend\\src\\components\\salesInvoices\\SalesInvoiceForm.tsx",
   "PreviewInSolutionExplorer": false
 }

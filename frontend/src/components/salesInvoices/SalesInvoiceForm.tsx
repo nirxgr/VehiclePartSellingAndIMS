@@ -76,10 +76,6 @@ function SalesInvoiceForm({
     control,
     name: 'vehicleId',
   })
-  const watchedDiscountAmount = useWatch({
-    control,
-    name: 'discountAmount',
-  })
   const watchedPaidAmount = useWatch({
     control,
     name: 'paidAmount',
@@ -119,8 +115,7 @@ function SalesInvoiceForm({
       return sum + getSalesLineTotal(item.quantity, selectedPart?.sellingPricePerUnit ?? 0)
     }, 0)
 
-    const normalizedDiscountAmount = Number.parseFloat(watchedDiscountAmount || '0')
-    const discountAmount = Number.isNaN(normalizedDiscountAmount) ? 0 : normalizedDiscountAmount
+    const discountAmount = subTotal > 5000 ? subTotal * 0.10 : 0
     const finalAmount = Math.max(subTotal - discountAmount, 0)
     const normalizedPaidAmount = Number.parseFloat(watchedPaidAmount || '0')
     const paidAmount = Number.isNaN(normalizedPaidAmount) ? 0 : normalizedPaidAmount
@@ -135,7 +130,7 @@ function SalesInvoiceForm({
       totalLines,
       totalQuantity,
     }
-  }, [invoiceItems, partLookup, watchedDiscountAmount, watchedPaidAmount])
+  }, [invoiceItems, partLookup, watchedPaidAmount])
 
   const customerField = register('customerId', {
     required: {
@@ -322,37 +317,28 @@ function SalesInvoiceForm({
               </div>
 
               <div className="grid gap-5 md:grid-cols-2">
-                <div className="relative">
-                  <label className="mb-2 block text-[14px] font-semibold text-[#1B3554]" htmlFor="sales-invoice-discount">
-                    Discount Amount
-                  </label>
-                  <input
-                    {...register('discountAmount', {
-                      validate: (value) => {
-                        const numericValue = Number.parseFloat(value || '0')
+                              <div className="relative">
+                                  <label
+                                      className="mb-2 block text-[14px] font-semibold text-[#1B3554]"
+                                      htmlFor="sales-invoice-discount"
+                                  >
+                                      Loyalty Discount
+                                  </label>
 
-                        if (Number.isNaN(numericValue) || numericValue < 0) {
-                          return 'Discount amount cannot be negative.'
-                        }
+                                  <input
+                                      className="h-13 w-full rounded-[18px] border border-[#D8E3EE] bg-[#F1F5F9] px-4 text-[15px] text-[#17314F] outline-none"
+                                      id="sales-invoice-discount"
+                                      readOnly
+                                      type="number"
+                                      value={summary.discountAmount.toFixed(2)}
+                                  />
 
-                        if (numericValue > summary.subTotal) {
-                          return 'Discount amount cannot be greater than subtotal.'
-                        }
-
-                        return true
-                      },
-                    })}
-                    className="h-13 w-full rounded-[18px] border border-[#D8E3EE] bg-[#FBFDFF] px-4 text-[15px] text-[#17314F] outline-none transition focus:border-[#9CB9D8] focus:bg-white focus:ring-4 focus:ring-[#15558D]/10"
-                    disabled={isSubmitting}
-                    id="sales-invoice-discount"
-                    inputMode="decimal"
-                    min="0"
-                    placeholder="0.00"
-                    step="0.01"
-                    type="number"
-                  />
-                  {errors.discountAmount ? <p className="mt-2 text-[13px] text-[#C54141]">{errors.discountAmount.message}</p> : null}
-                </div>
+                                  <p className="mt-2 text-[13px] text-[#627A93]">
+                                      {summary.subTotal > 5000
+                                          ? '10% loyalty discount applied automatically.'
+                                          : 'Loyalty discount applies when subtotal is greater than Rs. 5000.'}
+                                  </p>
+                              </div>
 
                 <div className="relative">
                   <label className="mb-2 block text-[14px] font-semibold text-[#1B3554]" htmlFor="sales-invoice-paid">

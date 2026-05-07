@@ -1,14 +1,18 @@
-# macOS
-.DS_Store
+﻿# Visual Studio
+.vs/
+bin/
+obj/
 
 # Node
 node_modules/
 dist/
-.vite/
 
-# .NET
-bin/
-obj/
+# Env files
+.env
 
-# Rider
-.idea/
+# Logs
+*.log
+
+# OS
+.DS_Store
+Thumbs.db

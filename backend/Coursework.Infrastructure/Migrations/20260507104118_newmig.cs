@@ -9,7 +9,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Coursework.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class SetupMigration : Migration
+    public partial class newmig : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -275,10 +275,14 @@ namespace Coursework.Infrastructure.Migrations
                     PartNumber = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
                     Category = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
                     Description = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
+                    ImagePublicId = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: true),
                     CostPricePerUnit = table.Column<decimal>(type: "numeric(18,2)", precision: 18, scale: 2, nullable: false),
                     SellingPricePerUnit = table.Column<decimal>(type: "numeric(18,2)", precision: 18, scale: 2, nullable: false),
                     StockQuantity = table.Column<int>(type: "integer", nullable: false),
                     MinimumStockLevel = table.Column<int>(type: "integer", nullable: false),
+                    Status = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
+                    IsDeleted = table.Column<bool>(type: "boolean", nullable: false),
+                    DeletedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     IsActive = table.Column<bool>(type: "boolean", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
@@ -306,6 +310,9 @@ namespace Coursework.Infrastructure.Migrations
                     PurchaseDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     TotalAmount = table.Column<decimal>(type: "numeric(18,2)", precision: 18, scale: 2, nullable: false),
                     Status = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
+                    PdfPublicId = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: true),
+                    IsEmailSent = table.Column<bool>(type: "boolean", nullable: false),
+                    EmailSentAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
@@ -364,6 +371,7 @@ namespace Coursework.Infrastructure.Migrations
                     SalesInvoiceId = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     InvoiceNumber = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
+                    InvoicePdfPublicId = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
                     CustomerId = table.Column<string>(type: "text", nullable: false),
                     StaffId = table.Column<string>(type: "text", nullable: false),
                     VehicleId = table.Column<int>(type: "integer", nullable: false),
@@ -558,15 +566,86 @@ namespace Coursework.Infrastructure.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "PartTransactions",
+                columns: table => new
+                {
+                    PartTransactionId = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    PartId = table.Column<int>(type: "integer", nullable: false),
+                    TransactionType = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
+                    QuantityChanged = table.Column<int>(type: "integer", nullable: false),
+                    StockBefore = table.Column<int>(type: "integer", nullable: false),
+                    StockAfter = table.Column<int>(type: "integer", nullable: false),
+                    CostPricePerUnit = table.Column<decimal>(type: "numeric(18,2)", precision: 18, scale: 2, nullable: true),
+                    PurchaseInvoiceId = table.Column<int>(type: "integer", nullable: true),
+                    PurchaseInvoiceItemId = table.Column<int>(type: "integer", nullable: true),
+                    SalesInvoiceId = table.Column<int>(type: "integer", nullable: true),
+                    SalesInvoiceItemId = table.Column<int>(type: "integer", nullable: true),
+                    Remarks = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
+                    CreatedById = table.Column<string>(type: "text", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_PartTransactions", x => x.PartTransactionId);
+                    table.ForeignKey(
+                        name: "FK_PartTransactions_AspNetUsers_CreatedById",
+                        column: x => x.CreatedById,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_PartTransactions_Parts_PartId",
+                        column: x => x.PartId,
+                        principalTable: "Parts",
+                        principalColumn: "PartId",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_PartTransactions_PurchaseInvoiceItems_PurchaseInvoiceItemId",
+                        column: x => x.PurchaseInvoiceItemId,
+                        principalTable: "PurchaseInvoiceItems",
+                        principalColumn: "PurchaseInvoiceItemId",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_PartTransactions_PurchaseInvoices_PurchaseInvoiceId",
+                        column: x => x.PurchaseInvoiceId,
+                        principalTable: "PurchaseInvoices",
+                        principalColumn: "PurchaseInvoiceId",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_PartTransactions_SalesInvoiceItems_SalesInvoiceItemId",
+                        column: x => x.SalesInvoiceItemId,
+                        principalTable: "SalesInvoiceItems",
+                        principalColumn: "SalesInvoiceItemId",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_PartTransactions_SalesInvoices_SalesInvoiceId",
+                        column: x => x.SalesInvoiceId,
+                        principalTable: "SalesInvoices",
+                        principalColumn: "SalesInvoiceId",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
             migrationBuilder.InsertData(
                 table: "AspNetRoles",
                 columns: new[] { "Id", "ConcurrencyStamp", "Name", "NormalizedName" },
                 values: new object[,]
                 {
-                    { "1", "6ae66bc5-feef-414f-a989-9b61e3240acc", "Admin", "ADMIN" },
-                    { "2", "cc621f57-bc64-446d-86be-850f6f45110f", "Staff", "STAFF" },
-                    { "3", "38b1f1ef-7be5-46cc-86b1-68929fa27c82", "Customer", "CUSTOMER" }
+                    { "1", "admin-role-stamp", "Admin", "ADMIN" },
+                    { "2", "staff-role-stamp", "Staff", "STAFF" },
+                    { "3", "customer-role-stamp", "Customer", "CUSTOMER" }
                 });
+
+            migrationBuilder.InsertData(
+                table: "AspNetUsers",
+                columns: new[] { "Id", "AccessFailedCount", "Address", "ConcurrencyStamp", "CreatedAt", "Email", "EmailConfirmed", "FullName", "IsActive", "LockoutEnabled", "LockoutEnd", "NormalizedEmail", "NormalizedUserName", "PasswordHash", "PhoneNumber", "PhoneNumberConfirmed", "SecurityStamp", "TwoFactorEnabled", "UpdatedAt", "UserName" },
+                values: new object[] { "dev-admin-user", 0, null, "dev-admin-concurrency-stamp", new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "admin@autocareims.com", true, "Development Admin", true, false, null, "ADMIN@AUTOCAREIMS.COM", "ADMIN@AUTOCAREIMS.COM", null, null, false, "dev-admin-security-stamp", false, null, "admin@autocareims.com" });
+
+            migrationBuilder.InsertData(
+                table: "AspNetUserRoles",
+                columns: new[] { "RoleId", "UserId" },
+                values: new object[] { "1", "dev-admin-user" });
 
             migrationBuilder.CreateIndex(
                 name: "IX_Appointments_CustomerId",
@@ -637,6 +716,36 @@ namespace Coursework.Infrastructure.Migrations
                 column: "VendorId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_PartTransactions_CreatedById",
+                table: "PartTransactions",
+                column: "CreatedById");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_PartTransactions_PartId",
+                table: "PartTransactions",
+                column: "PartId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_PartTransactions_PurchaseInvoiceId",
+                table: "PartTransactions",
+                column: "PurchaseInvoiceId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_PartTransactions_PurchaseInvoiceItemId",
+                table: "PartTransactions",
+                column: "PurchaseInvoiceItemId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_PartTransactions_SalesInvoiceId",
+                table: "PartTransactions",
+                column: "SalesInvoiceId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_PartTransactions_SalesInvoiceItemId",
+                table: "PartTransactions",
+                column: "SalesInvoiceItemId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Payments_SalesInvoiceId",
                 table: "Payments",
                 column: "SalesInvoiceId");
@@ -693,10 +802,20 @@ namespace Coursework.Infrastructure.Migrations
                 column: "CustomerId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_SalesInvoices_InvoiceDate",
+                table: "SalesInvoices",
+                column: "InvoiceDate");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_SalesInvoices_InvoiceNumber",
                 table: "SalesInvoices",
                 column: "InvoiceNumber",
                 unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SalesInvoices_PaymentStatus",
+                table: "SalesInvoices",
+                column: "PaymentStatus");
 
             migrationBuilder.CreateIndex(
                 name: "IX_SalesInvoices_StaffId",
@@ -771,22 +890,28 @@ namespace Coursework.Infrastructure.Migrations
                 name: "PartRequests");
 
             migrationBuilder.DropTable(
+                name: "PartTransactions");
+
+            migrationBuilder.DropTable(
                 name: "Payments");
 
             migrationBuilder.DropTable(
-                name: "PurchaseInvoiceItems");
-
-            migrationBuilder.DropTable(
                 name: "Reviews");
-
-            migrationBuilder.DropTable(
-                name: "SalesInvoiceItems");
 
             migrationBuilder.DropTable(
                 name: "ServiceRecords");
 
             migrationBuilder.DropTable(
                 name: "AspNetRoles");
+
+            migrationBuilder.DropTable(
+                name: "PurchaseInvoiceItems");
+
+            migrationBuilder.DropTable(
+                name: "SalesInvoiceItems");
+
+            migrationBuilder.DropTable(
+                name: "Appointments");
 
             migrationBuilder.DropTable(
                 name: "PurchaseInvoices");
@@ -796,9 +921,6 @@ namespace Coursework.Infrastructure.Migrations
 
             migrationBuilder.DropTable(
                 name: "SalesInvoices");
-
-            migrationBuilder.DropTable(
-                name: "Appointments");
 
             migrationBuilder.DropTable(
                 name: "Vendors");

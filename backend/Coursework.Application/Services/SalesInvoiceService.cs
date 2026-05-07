@@ -216,11 +216,12 @@ public class SalesInvoiceService : ISalesInvoiceService
                 return part.SellingPricePerUnit * quantity;
             });
 
-            if (dto.DiscountAmount > subTotal)
-            {
-                return ApiResponse<SalesInvoiceDetailDto>.FailureResponse(
-                    "Discount amount cannot be greater than subtotal.");
-            }
+            const decimal LoyaltyDiscountThreshold = 5000m;
+            const decimal LoyaltyDiscountRate = 0.10m;
+
+            var loyaltyDiscountAmount = subTotal > LoyaltyDiscountThreshold
+                ? Math.Round(subTotal * LoyaltyDiscountRate, 2)
+                : 0m;
 
             var finalAmount = subTotal - dto.DiscountAmount;
 
@@ -241,7 +242,7 @@ public class SalesInvoiceService : ISalesInvoiceService
                 VehicleId = dto.VehicleId,
                 InvoiceDate = DateTime.UtcNow,
                 SubTotal = subTotal,
-                DiscountAmount = dto.DiscountAmount,
+                DiscountAmount = loyaltyDiscountAmount,
                 FinalAmount = finalAmount,
                 PaidAmount = dto.PaidAmount,
                 PaymentStatus = paymentStatus,
